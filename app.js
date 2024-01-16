@@ -1,11 +1,10 @@
 const express = require("express");
-const fs = require("fs").promises; // Usa fs.promises para admitir async/await
+const fs = require("fs").promises;
 const path = require("path");
 const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
-const directorioDestino = "C:\\Users\\Equipo_03\\Desktop\\mi_carpeta"; // directorio donde se genera el archivo
 const nombreArchivo = "archivo_creado.txt";
 
 app.use(cors());
@@ -15,34 +14,121 @@ app.get("/", (req, res) => {
   res.send("¡Hola desde el servidor!");
 });
 
-app.post("/crear-archivo", async (req, res) => {
+// Ruta para agregar contenido al archivo
+app.post("/agregar-contenido", async (req, res) => {
+  const directorioDestino = "Z:\\pruebas\\documentos_txt";
+
+  // const directorioDestino =
+  // "C:\\Users\\Equipo_03\\Desktop\\mis_carpetas\\mis documentos";
   const rutaArchivo = path.join(directorioDestino, nombreArchivo);
 
   try {
-    // Verifica si el archivo existe
+    // Intenta acceder al archivo
     await fs.access(rutaArchivo);
 
-    // Si existe, lee el contenido existente y agrega el nuevo contenido con un salto de línea
+    // Si el archivo existe, lee el contenido y agrega el nuevo contenido con un salto de línea
     const contenidoExistente = await fs.readFile(rutaArchivo, "utf8");
-    const nuevoContenido = `${contenidoExistente}\n${req.body.contenidoArchivo}`;
+    let nuevoContenido;
+
+    if (
+      req.body.contenidoArchivo &&
+      req.body.contenidoArchivo.contenidoArchivo &&
+      Array.isArray(req.body.contenidoArchivo.contenidoArchivo)
+    ) {
+      // Usa join para unir los elementos del arreglo con saltos de línea
+      nuevoContenido = `${contenidoExistente}\n${req.body.contenidoArchivo.contenidoArchivo.join(
+        "\n"
+      )}`;
+    } else {
+      nuevoContenido = contenidoExistente;
+    }
 
     // Escribe el contenido actualizado de vuelta al archivo
     await fs.writeFile(rutaArchivo, nuevoContenido);
 
     console.log(`Contenido agregado al archivo ${nombreArchivo}`);
 
-    res
-      .status(200)
-      .json({
-        mensaje:
-          "Contenido agregado al archivo archivo_creado.txt correctamente",
-      });
+    res.status(200).json({
+      mensaje: "Contenido agregado al archivo archivo_creado.txt correctamente",
+    });
   } catch (error) {
-    // Si el archivo no existe, crea un nuevo archivo con el contenido proporcionado
+    // Si el archivo no existe, crea el directorio y luego crea el archivo con el contenido proporcionado
     if (error.code === "ENOENT") {
-      await fs.writeFile(rutaArchivo, req.body.contenidoArchivo);
-      console.log(`Archivo ${nombreArchivo} creado en ${directorioDestino}`);
-      res.json({ mensaje: `Archivo ${nombreArchivo} creado correctamente` });
+      try {
+        await fs.mkdir(directorioDestino, { recursive: true }); // Crea el directorio de forma recursiva
+        await fs.writeFile(
+          rutaArchivo,
+          req.body.contenidoArchivo.contenidoArchivo.join("\n")
+        );
+        console.log(`Archivo ${nombreArchivo} creado en ${directorioDestino}`);
+        res.json({
+          mensaje: `Archivo ${nombreArchivo} creado correctamente`,
+        });
+      } catch (error) {
+        console.error("Error al crear el directorio o archivo:", error);
+        res.status(500).json({ error: "Error al procesar la solicitud" });
+      }
+    } else {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Error al procesar la solicitud" });
+    }
+  }
+});
+
+app.post("/limpiar-y-agregar", async (req, res) => {
+  const directorioDestino = "Z:\\pruebas\\documentos_txt";
+
+  // const directorioDestino =
+  //   "C:\\Users\\Equipo_03\\Desktop\\mis_carpetas\\mis documentos";
+  const rutaArchivo = path.join(directorioDestino, nombreArchivo);
+
+  try {
+    // Intenta acceder al archivo
+    await fs.access(rutaArchivo);
+
+    // Limpiar el contenido y agregar nuevo
+    if (
+      req.body.contenidoArchivo &&
+      req.body.contenidoArchivo.contenidoArchivo &&
+      Array.isArray(req.body.contenidoArchivo.contenidoArchivo)
+    ) {
+      // Usa join para unir los elementos del arreglo con saltos de línea
+      await fs.writeFile(
+        rutaArchivo,
+        req.body.contenidoArchivo.contenidoArchivo.join("\n")
+      );
+      console.log(
+        `Contenido limpiado y reemplazado en el archivo ${nombreArchivo}`
+      );
+    } else {
+      console.error("Error: El contenido proporcionado no es un arreglo");
+      res
+        .status(400)
+        .json({ error: "El contenido proporcionado no es un arreglo" });
+      return;
+    }
+
+    res.status(200).json({
+      mensaje:
+        "Contenido limpiado y reemplazado en el archivo archivo_creado.txt correctamente",
+    });
+  } catch (error) {
+    // Si el archivo no existe, crea el directorio y luego crea el archivo con el contenido proporcionado
+    if (error.code === "ENOENT") {
+      try {
+        await fs.mkdir(directorioDestino, { recursive: true }); // Crea el directorio de forma recursiva
+        await fs.writeFile(
+          rutaArchivo,
+          req.body.contenidoArchivo.contenidoArchivo.join("\n")
+        );
+        console.log(`Archivo ${nombreArchivo} creado en ${directorioDestino}`);
+        res.json({
+          mensaje: `Archivo ${nombreArchivo} creado correctamente`,
+        });
+      } catch (error) {
+        console.error("Error al crear el directorio o archivo:", error);
+        res.status(500).json({ error: "Error al procesar la solicitud" });
+      }
     } else {
       console.error("Error:", error);
       res.status(500).json({ error: "Error al procesar la solicitud" });
