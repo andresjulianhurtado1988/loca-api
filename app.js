@@ -1,11 +1,15 @@
 const express = require("express");
+const config = require("./config"); // Ruta al archivo de configuración
+
 const fs = require("fs").promises;
 const path = require("path");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3000;
-const nombreArchivo = "archivo_creado.txt";
+const PORT = config.PORT || 3000;
+const nombreArchivo = config.nombreArchivo;
+const directorioDestino = config.directorioDestino;
+const rutaArchivo = path.join(directorioDestino, nombreArchivo);
 
 app.use(cors());
 app.use(express.json());
@@ -16,12 +20,6 @@ app.get("/", (req, res) => {
 
 // Ruta para agregar contenido al archivo
 app.post("/agregar-contenido", async (req, res) => {
-  const directorioDestino = "Z:\\pruebas\\documentos_txt";
-
-  // const directorioDestino =
-  // "C:\\Users\\Equipo_03\\Desktop\\mis_carpetas\\mis documentos";
-  const rutaArchivo = path.join(directorioDestino, nombreArchivo);
-
   try {
     // Intenta acceder al archivo
     await fs.access(rutaArchivo);
@@ -76,12 +74,6 @@ app.post("/agregar-contenido", async (req, res) => {
 });
 
 app.post("/limpiar-y-agregar", async (req, res) => {
-  const directorioDestino = "Z:\\pruebas\\documentos_txt";
-
-  // const directorioDestino =
-  //   "C:\\Users\\Equipo_03\\Desktop\\mis_carpetas\\mis documentos";
-  const rutaArchivo = path.join(directorioDestino, nombreArchivo);
-
   try {
     // Intenta acceder al archivo
     await fs.access(rutaArchivo);
