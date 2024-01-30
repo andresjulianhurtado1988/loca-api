@@ -17,39 +17,39 @@ app.get("/", (req, res) => {
   res.send("¡Hola desde el servidor!");
 });
 
-// async function validarPermisosCrearArchivo(rutaCarpeta) {
-//   const archivoPrueba = path.join(rutaCarpeta, "archivo_prueba.txt");
+async function validarPermisosCrearArchivo(rutaCarpeta) {
+  const archivoPrueba = path.join(rutaCarpeta, "archivo_prueba.txt");
 
-//   try {
-//     // Intenta abrir la carpeta
-//     await fs.opendir(rutaCarpeta);
+  try {
+    // Intenta abrir la carpeta
+    await fs.opendir(rutaCarpeta);
 
-//     // Intenta crear y luego eliminar un archivo en la carpeta
-//     await fs.writeFile(archivoPrueba, "contenido de prueba");
-//     await fs.unlink(archivoPrueba);
+    // Intenta crear y luego eliminar un archivo en la carpeta
+    await fs.writeFile(archivoPrueba, "contenido de prueba");
+    await fs.unlink(archivoPrueba);
 
-//     console.log(`Tienes permisos para crear un archivo en ${rutaCarpeta}`);
-//     return true;
-//   } catch (error) {
-//     console.log(`No tienes permisos para crear un archivo en ${rutaCarpeta}`);
-//     return false;
-//   }
-// }
+    console.log(`Tienes permisos para crear un archivo en ${rutaCarpeta}`);
+    return true;
+  } catch (error) {
+    console.log(`No tienes permisos para crear un archivo en ${rutaCarpeta}`);
+    return false;
+  }
+}
 
 // Ruta para agregar contenido al archivo
 app.post("/agregar-contenido", async (req, res) => {
   try {
     // Validar permisos para crear archivos en la carpeta destino
-    // const tienePermisos = await validarPermisosCrearArchivo(directorioDestino);
+    const tienePermisos = await validarPermisosCrearArchivo(directorioDestino);
 
-    // if (!tienePermisos) {
-    //   console.log(
-    //     `No tienes permisos para crear archivos en ${directorioDestino}`
-    //   );
-    //   return res.status(403).json({
-    //     mensaje: "No tienes permisos para crear archivos en la carpeta destino",
-    //   });
-    // }
+    if (!tienePermisos) {
+      console.log(
+        `No tienes permisos para crear archivos en ${directorioDestino}`
+      );
+      return res.status(403).json({
+        mensaje: "No tienes permisos para crear archivos en la carpeta destino",
+      });
+    }
 
     // Intenta acceder al archivo
     await fs.access(rutaArchivo);
@@ -106,16 +106,16 @@ app.post("/agregar-contenido", async (req, res) => {
 app.post("/limpiar-y-agregar", async (req, res) => {
   try {
     // Validar permisos para crear archivos en la carpeta destino
-    // const tienePermisos = await validarPermisosCrearArchivo(directorioDestino);
+    const tienePermisos = await validarPermisosCrearArchivo(directorioDestino);
 
-    // if (!tienePermisos) {
-    //   console.log(
-    //     `No tienes permisos para crear archivos en ${directorioDestino}`
-    //   );
-    //   return res.status(403).json({
-    //     mensaje: "No tienes permisos para crear archivos en la carpeta destino",
-    //   });
-    // }
+    if (!tienePermisos) {
+      console.log(
+        `No tienes permisos para crear archivos en ${directorioDestino}`
+      );
+      return res.status(403).json({
+        mensaje: "No tienes permisos para crear archivos en la carpeta destino",
+      });
+    }
 
     // Intenta acceder al archivo
     await fs.access(rutaArchivo);
