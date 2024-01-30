@@ -1,0 +1,21 @@
+<!--
+
+NOMBRE DE LA IMAGEN: img_app_node
+
+*** para construir la imagen de docker
+docker build --no-cache -t nombre-de-tu-imagen .
+
+*** para saber el nombre de las imagenes en ejecución
+docker ps -a
+
+*** para detener la ejecución
+docker stop nombre-de-tu-imagen
+
+*** para eliminar la imagen
+docker rm nombre-de-tu-imagen
+
+
+*** para iniciar ejecución
+docker run -p 3000:3000 -d nombre-de-tu-imagen
+
+ -->

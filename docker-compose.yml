@@ -1,0 +1,10 @@
+version: "3"
+services:
+  web:
+    build: .
+    command: npm run dev
+    volumes:
+      # - .:/usr/src/app
+      - C:/Users/Equipo_03/Desktop/pruebas/:/app/
+    ports:
+      - "3000:3000"
